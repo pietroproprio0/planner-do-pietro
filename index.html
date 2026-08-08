@@ -15,25 +15,95 @@ button:hover{border-color:#c6cedc} .nav{font-weight:700} .today{background:var(-
 .search{width:240px;cursor:text} .calendar{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 30px #1720330d}
 .monthbar{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)} .monthbar h2{margin:0;font-size:20px}
 .week,.grid{display:grid;grid-template-columns:repeat(7,1fr)} .week div{padding:10px;text-align:center;color:var(--muted);font-size:12px;font-weight:800}
-.day{min-height:125px;border-right:1px solid var(--line);border-top:1px solid var(--line);padding:8px;cursor:pointer;background:#fff}
-.day:nth-child(7n){border-right:0} .day.muted{background:#fafbfc;color:#b0b7c4} .day.todaycell{outline:2px solid var(--accent);outline-offset:-2px}
-.num{font-weight:800;font-size:13px;margin-bottom:6px} .event{font-size:11px;border-radius:7px;padding:4px 6px;margin:4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
-.prova{background:#fee2e2;color:#991b1b} .trabalho{background:#dbeafe;color:#1d4ed8} .atividade{background:#dcfce7;color:#166534} .recuperacao{background:#fef3c7;color:#92400e} .info{background:#ede9fe;color:#6d28d9}
-.more{font-size:11px;color:var(--muted);font-weight:700;padding:3px 5px}
-.legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0;color:var(--muted);font-size:13px} .legend span{display:flex;align-items:center;gap:5px}
-.dot{width:9px;height:9px;border-radius:50%;display:inline-block} .d-red{background:var(--red)} .d-blue{background:var(--blue)} .d-green{background:var(--green)} .d-orange{background:var(--orange)} .d-purple{background:var(--purple)}
+.day{
+  min-height:125px;
+  border-right:1px solid var(--line);
+  border-top:1px solid var(--line);
+  padding:9px;
+  cursor:pointer;
+  background:#fff;
+  transition:background .15s, transform .1s;
+}
+.day:hover{background:#f8faff}
+.day:nth-child(7n){border-right:0}
+.day.muted{background:#fafbfc;color:#b0b7c4}
+.day.todaycell{outline:2px solid var(--accent);outline-offset:-2px}
+.num{font-weight:800;font-size:13px;margin-bottom:9px}
+.events{display:flex;flex-wrap:wrap;gap:7px;align-items:center;max-width:100%}
+.event{
+  width:13px;height:13px;min-width:13px;
+  border-radius:50%;
+  padding:0;margin:0;
+  border:2px solid rgba(255,255,255,.9);
+  box-shadow:0 1px 3px rgba(20,30,50,.18);
+  font-size:0;
+  overflow:hidden;
+}
+.event:hover{transform:scale(1.18)}
+.prova{background:var(--red)}
+.trabalho{background:var(--blue)}
+.atividade{background:var(--green)}
+.recuperacao{background:var(--orange)}
+.info{background:var(--purple)}
+.more{
+  font-size:11px;color:var(--muted);font-weight:800;
+  padding:1px 4px;background:#f1f3f7;border-radius:999px;
+}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0;color:var(--muted);font-size:13px}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.d-red{background:var(--red)} .d-blue{background:var(--blue)}
+.d-green{background:var(--green)} .d-orange{background:var(--orange)}
+.d-purple{background:var(--purple)}
+.day .events{min-height:24px}
 .modal{position:fixed;inset:0;background:#0b102099;display:none;align-items:center;justify-content:center;padding:18px;z-index:10} .modal.show{display:flex}
 .panel{background:#fff;border-radius:20px;max-width:700px;width:100%;max-height:90vh;overflow:auto;padding:22px;box-shadow:0 25px 80px #0003}
 .close{float:right;border:0;background:#f1f3f7;border-radius:50%;width:36px;height:36px;padding:0} .date-title{font-size:21px;font-weight:850;margin:0 45px 16px 0}
 .item{border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0} .item h3{margin:0 0 7px;font-size:16px} .meta{display:flex;gap:7px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-bottom:8px} .pill{padding:4px 8px;border-radius:999px;background:#f1f3f7}
 .todo{line-height:1.5;color:#30394a} .empty{padding:35px;text-align:center;color:var(--muted)}
-@media(max-width:760px){.wrap{padding:12px}h1{font-size:22px}.search{width:100%}.day{min-height:82px;padding:5px}.event{font-size:9px;padding:3px 4px}.week div{font-size:10px;padding:8px 2px}.monthbar{padding:12px}}
+@media(max-width:760px){
+  .wrap{padding:8px}
+  header{align-items:flex-start;flex-direction:column;gap:10px;margin-bottom:12px}
+  h1{font-size:20px}
+  .sub{font-size:12px}
+  .search{width:100%;padding:11px}
+  .controls{width:100%}
+  .controls button{flex:1}
+  .filters{gap:5px;margin-bottom:9px}
+  .filter{font-size:12px;padding:8px 9px}
+  .legend{gap:9px;font-size:11px;margin:9px 0}
+  .calendar{border-radius:14px}
+  .monthbar{padding:11px 12px}
+  .monthbar h2{font-size:17px}
+  .week div{font-size:9px;padding:7px 1px}
+  .day{
+    min-height:66px;
+    height:66px;
+    padding:6px 4px;
+    overflow:hidden;
+  }
+  .num{
+    font-size:12px;
+    margin-bottom:6px;
+  }
+  .events{
+    gap:5px;
+    justify-content:flex-start;
+  }
+  .event{
+    width:10px;height:10px;min-width:10px;
+    border-width:1.5px;
+  }
+  .more{font-size:9px;padding:1px 3px}
+  .panel{padding:17px;border-radius:17px;max-height:92vh}
+  .date-title{font-size:18px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <div><h1>📚 PLANNER DO PIETRO</h1><div class="sub">Calendário interativo — 3º Bimestre • 2º EM C</div></div>
+  <div><h1>📚 PLANNER DO PIETRO</h1><div class="sub">Calendário interativo — clique em um dia para ver todas as informações</div></div>
   <input id="search" class="search" placeholder="🔎 pesquisar matéria ou tarefa">
 </header>
 <div class="controls">
@@ -100,11 +170,22 @@ function render(){
       cell.onclick=()=>openDay(ds);
       cell.innerHTML='<div class="num">'+day+'</div>';
       const list=eventos.filter(e=>e.date===ds && visible(e));
-      list.slice(0,3).forEach(e=>{
-        const div=document.createElement("div"); div.className="event "+e.type;
-        div.textContent=e.subject+" — "+e.title; cell.appendChild(div);
+      const eventsBox=document.createElement("div");
+      eventsBox.className="events";
+      list.forEach(e=>{
+        const div=document.createElement("div");
+        div.className="event "+e.type;
+        div.title=e.subject+" — "+e.title;
+        div.setAttribute("aria-label",e.subject+" — "+e.title);
+        eventsBox.appendChild(div);
       });
-      if(list.length>3){ const more=document.createElement("div"); more.className="more"; more.textContent="+"+(list.length-3)+" eventos"; cell.appendChild(more); }
+      if(list.length>8){
+        const more=document.createElement("div");
+        more.className="more";
+        more.textContent="+"+(list.length-8);
+        eventsBox.appendChild(more);
+      }
+      cell.appendChild(eventsBox);
     } else cell.innerHTML='<div class="num">'+(day<1?new Date(y,m,day).getDate():day)+'</div>';
     grid.appendChild(cell);
   }
