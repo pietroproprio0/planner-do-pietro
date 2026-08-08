@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📚 Planner do Pietro — Calendário</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#697386;--line:#e5e9f0;--accent:#315efb;--red:#ef4444;--blue:#3b82f6;--green:#16a34a;--orange:#f59e0b;--purple:#8b5cf6}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1100px;margin:auto;padding:24px} header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+h1{margin:0;font-size:28px} .sub{color:var(--muted);margin-top:4px}
+.controls{display:flex;gap:8px;flex-wrap:wrap} button,.select,.search{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 13px;font:inherit;cursor:pointer}
+button:hover{border-color:#c6cedc} .nav{font-weight:700} .today{background:var(--accent);color:#fff;border-color:var(--accent)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px} .filter.active{background:#111827;color:#fff;border-color:#111827}
+.search{width:240px;cursor:text} .calendar{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 30px #1720330d}
+.monthbar{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)} .monthbar h2{margin:0;font-size:20px}
+.week,.grid{display:grid;grid-template-columns:repeat(7,1fr)} .week div{padding:10px;text-align:center;color:var(--muted);font-size:12px;font-weight:800}
+.day{min-height:125px;border-right:1px solid var(--line);border-top:1px solid var(--line);padding:8px;cursor:pointer;background:#fff}
+.day:nth-child(7n){border-right:0} .day.muted{background:#fafbfc;color:#b0b7c4} .day.todaycell{outline:2px solid var(--accent);outline-offset:-2px}
+.num{font-weight:800;font-size:13px;margin-bottom:6px} .event{font-size:11px;border-radius:7px;padding:4px 6px;margin:4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.prova{background:#fee2e2;color:#991b1b} .trabalho{background:#dbeafe;color:#1d4ed8} .atividade{background:#dcfce7;color:#166534} .recuperacao{background:#fef3c7;color:#92400e} .info{background:#ede9fe;color:#6d28d9}
+.more{font-size:11px;color:var(--muted);font-weight:700;padding:3px 5px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0;color:var(--muted);font-size:13px} .legend span{display:flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block} .d-red{background:var(--red)} .d-blue{background:var(--blue)} .d-green{background:var(--green)} .d-orange{background:var(--orange)} .d-purple{background:var(--purple)}
+.modal{position:fixed;inset:0;background:#0b102099;display:none;align-items:center;justify-content:center;padding:18px;z-index:10} .modal.show{display:flex}
+.panel{background:#fff;border-radius:20px;max-width:700px;width:100%;max-height:90vh;overflow:auto;padding:22px;box-shadow:0 25px 80px #0003}
+.close{float:right;border:0;background:#f1f3f7;border-radius:50%;width:36px;height:36px;padding:0} .date-title{font-size:21px;font-weight:850;margin:0 45px 16px 0}
+.item{border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0} .item h3{margin:0 0 7px;font-size:16px} .meta{display:flex;gap:7px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-bottom:8px} .pill{padding:4px 8px;border-radius:999px;background:#f1f3f7}
+.todo{line-height:1.5;color:#30394a} .empty{padding:35px;text-align:center;color:var(--muted)}
+@media(max-width:760px){.wrap{padding:12px}h1{font-size:22px}.search{width:100%}.day{min-height:82px;padding:5px}.event{font-size:9px;padding:3px 4px}.week div{font-size:10px;padding:8px 2px}.monthbar{padding:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>📚 PLANNER DO PIETRO</h1><div class="sub">Calendário interativo — 3º Bimestre • 2º EM C</div></div>
+  <input id="search" class="search" placeholder="🔎 pesquisar matéria ou tarefa">
+</header>
+<div class="controls">
+  <button class="nav" id="prev">‹</button><button class="nav" id="next">›</button><button class="today" id="today">Hoje</button>
+</div>
+<div class="filters">
+  <button class="filter active" data-filter="todos">Todos</button>
+  <button class="filter" data-filter="prova">🔴 Provas</button>
+  <button class="filter" data-filter="trabalho">🔵 Trabalhos</button>
+  <button class="filter" data-filter="atividade">🟢 Atividades</button>
+  <button class="filter" data-filter="recuperacao">🟠 Recuperações</button>
+</div>
+<div class="legend">
+  <span><i class="dot d-red"></i> Prova</span><span><i class="dot d-blue"></i> Trabalho</span>
+  <span><i class="dot d-green"></i> Atividade</span><span><i class="dot d-orange"></i> Recuperação</span>
+</div>
+<section class="calendar">
+  <div class="monthbar"><h2 id="month"></h2></div>
+  <div class="week"><div>SEG</div><div>TER</div><div>QUA</div><div>QUI</div><div>SEX</div><div>SÁB</div><div>DOM</div></div>
+  <div id="grid" class="grid"></div>
+</section>
+</div>
+
+<div id="modal" class="modal">
+  <div class="panel">
+    <button class="close" id="close">×</button>
+    <div id="content"></div>
+  </div>
+</div>
+
+<script>
+const eventos = [{"date": "2026-08-03", "subject": "Geografia", "title": "Seminário — preparação", "type": "trabalho", "points": "8,0", "todo": "Formar grupos, distribuir temas e definir responsabilidades para o seminário de Capitalismo e Socialismo."}, {"date": "2026-08-04", "subject": "Argumentação", "title": "Redação — escrita/reescrita", "type": "trabalho", "points": "3,0", "todo": "Produzir texto dissertativo-argumentativo com introdução, desenvolvimento 1 e 2 e conclusão. Letra legível, caneta azul ou preta e sem copiar dados do texto motivador."}, {"date": "2026-08-10", "subject": "Geografia", "title": "Seminário — produção", "type": "trabalho", "points": "8,0", "todo": "Desenvolver o conteúdo nos lapbooks e organizar as ideias para os slides digitais. O trabalho deve ser feito no PowerPoint e sem uso de IA nos slides."}, {"date": "2026-08-10", "subject": "Língua Portuguesa", "title": "Mapa Mental Individual", "type": "trabalho", "points": "5,0", "todo": "Fazer mapa mental individual sobre Conjunções Coordenativas (aditivas, adversativas, alternativas, conclusivas e explicativas), citando definição e exemplos. Folha Canson A4 branca."}, {"date": "2026-08-11", "subject": "Projeto de Vida", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-13", "subject": "Argumentação", "title": "Oficina de Textos — Capítulo 02", "type": "trabalho", "points": "7,0", "todo": "Fazer o capítulo solicitado do livro Oficina de Textos em casa e levar pronto para correção. Ler com atenção e responder completamente."}, {"date": "2026-08-13", "subject": "Geografia", "title": "Seminário — apresentação", "type": "trabalho", "points": "8,0", "todo": "Apresentar o trabalho sobre Sistemas Políticos: Capitalismo e Socialismo."}, {"date": "2026-08-14", "subject": "Filosofia", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-14", "subject": "Projeto de Vida", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-17", "subject": "Aprofundamento de História", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-17", "subject": "Geografia", "title": "Seminário — apresentação", "type": "trabalho", "points": "8,0", "todo": "Apresentar o trabalho sobre Sistemas Políticos: Capitalismo e Socialismo."}, {"date": "2026-08-17", "subject": "Língua Inglesa", "title": "Atividade oral — Taxi driver / Tourist", "type": "trabalho", "points": "5,0", "todo": "Escolher o personagem taxi driver ou tourist e apresentar oralmente as falas recebidas em aula. Pode ser individual ou em dupla. Devolver o cartão de carimbos nesta data."}, {"date": "2026-08-17", "subject": "Projeto de Vida", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-18", "subject": "Filosofia", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-18", "subject": "Projeto de Vida", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-19", "subject": "Biologia", "title": "Atividade / trabalho de Biologia", "type": "trabalho", "points": "", "todo": "Realizar a atividade indicada na ficha de Biologia e entregar na data marcada."}, {"date": "2026-08-20", "subject": "Argumentação", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-20", "subject": "História", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-21", "subject": "Física", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-21", "subject": "Projeto de Vida", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-24", "subject": "Aprofundamento de Geografia", "title": "Trabalho / apresentação", "type": "trabalho", "points": "", "todo": "Realizar a etapa prevista no cronograma de Aprofundamento de Geografia."}, {"date": "2026-08-24", "subject": "Debates Filosóficos", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-25", "subject": "História", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-25", "subject": "Língua Portuguesa", "title": "Trabalho em grupo — Renascido da dor", "type": "trabalho", "points": "5,0", "todo": "Ler o livro Renascido da dor, de Marcelo Cunha. Em grupo de até 4, produzir o trabalho em sala sobre cenário, personagens, acontecimentos principais e resumo. Levar 3 folhas de almaço e 2 folhas de sulfite para capa, com imagens impressas."}, {"date": "2026-08-26", "subject": "Geografia", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-27", "subject": "Aprofundamento de Geografia", "title": "Etapa do projeto", "type": "trabalho", "points": "", "todo": "Realizar a etapa indicada no cronograma da disciplina."}, {"date": "2026-08-27", "subject": "Debates Filosóficos", "title": "Campanha Eleitoral / trabalho interdisciplinar", "type": "trabalho", "points": "6,0", "todo": "Realizar o trabalho com tema Democracia, Participação e Responsabilidade, seguindo as instruções de equipes, candidatura, assessoria, entrevistas, plano de campanha, comunicação e redes sociais."}, {"date": "2026-08-27", "subject": "Ensino Religioso", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-27", "subject": "História", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-08-27", "subject": "Química", "title": "Infográfico — Cinética Química", "type": "trabalho", "points": "5,0", "todo": "Criar infográfico digital sobre fatores que influenciam a velocidade das reações: temperatura, concentração, superfície de contato, catalisadores e pressão. Incluir explicação científica, exemplo e representação visual. Entregar no E-Class até 23h59."}, {"date": "2026-08-28", "subject": "Física", "title": "Atividade de Física", "type": "trabalho", "points": "", "todo": "Concluir a atividade indicada na Sistemática para esta data."}, {"date": "2026-08-29", "subject": "Matemática", "title": "Trabalho de Matemática", "type": "trabalho", "points": "", "todo": "Concluir e entregar a atividade indicada na Sistemática para esta data."}, {"date": "2026-08-31", "subject": "Biologia", "title": "Feira de Ciências", "type": "trabalho", "points": "10,0", "todo": "Apresentar projeto sobre Aplicações da biotecnologia para soluções sustentáveis. Projeto em grupos de até 6; responder: “Como essa aplicação da biotecnologia pode mudar o futuro da humanidade?”."}, {"date": "2026-08-31", "subject": "Debates Filosóficos", "title": "Etapa do trabalho", "type": "trabalho", "points": "", "todo": "Realizar a etapa prevista no cronograma do trabalho."}, {"date": "2026-08-31", "subject": "Projeto de Vida", "title": "Trabalho / atividade — cronograma", "type": "trabalho", "points": "", "todo": "Data registrada no cronograma geral da Sistemática. Abrir os detalhes do dia e conferir a orientação passada pelo professor."}, {"date": "2026-09-02", "subject": "Biologia", "title": "Atividade de Biologia", "type": "trabalho", "points": "", "todo": "Concluir a atividade prevista na Sistemática para esta data."}, {"date": "2026-09-03", "subject": "Ensino Religioso", "title": "Atividade de Ensino Religioso", "type": "trabalho", "points": "", "todo": "Concluir a atividade prevista na Sistemática para esta data."}, {"date": "2026-09-03", "subject": "Química", "title": "Lista de exercícios de revisão — E-Class", "type": "trabalho", "points": "5,0", "todo": "Resolver a lista de revisão sobre Equilíbrios Químicos e Princípio de Le Chatelier — Módulo 3, págs. 22–42. Entregar no E-Class até 23h59."}, {"date": "2026-09-04", "subject": "Ensino Religioso", "title": "Atividade de Ensino Religioso", "type": "trabalho", "points": "", "todo": "Concluir a atividade prevista na Sistemática para esta data."}, {"date": "2026-09-04", "subject": "Simulado", "title": "Simulado do 3º Bimestre", "type": "prova", "points": "até 1,0 bônus", "todo": "Revisar o conteúdo estudado em sala. O simulado vale até 1,0 ponto como bônus na média das disciplinas que o compõem."}, {"date": "2026-09-08", "subject": "História", "title": "Avaliação escrita", "type": "prova", "points": "10,0", "todo": "Estudar o conteúdo indicado na ficha de História da Sistemática."}, {"date": "2026-09-08", "subject": "Matemática", "title": "Avaliação escrita", "type": "prova", "points": "10,0", "todo": "Estudar os conteúdos indicados na ficha de Matemática da Sistemática."}, {"date": "2026-09-09", "subject": "Química", "title": "Avaliação escrita", "type": "prova", "points": "10,0", "todo": "Estudar Equilíbrios Químicos e Princípio de Le Chatelier — Módulo 3, págs. 22–42."}, {"date": "2026-09-10", "subject": "Biologia", "title": "Avaliação escrita", "type": "prova", "points": "10,0", "todo": "Estudar Reino Animália I: Poríferos, Cnidários e vermes; Reino Animália II: seres dos múltiplos ambientes. Módulos 1 e 2, caderno e material do e-class."}, {"date": "2026-09-11", "subject": "Ensino Religioso", "title": "Avaliação escrita", "type": "prova", "points": "10,0", "todo": "Estudar o conteúdo previsto na ficha da Sistemática."}, {"date": "2026-09-11", "subject": "Física", "title": "Avaliação escrita", "type": "prova", "points": "10,0", "todo": "Estudar Módulo 1: leis da reflexão, espelhos planos e esféricos (p. 2–22) e Módulo 2: lentes esféricas (p. 23–39)."}, {"date": "2026-09-11", "subject": "Investigação Matemática", "title": "Atividade de Investigação Matemática", "type": "trabalho", "points": "", "todo": "Concluir a atividade prevista na Sistemática para esta data."}, {"date": "2026-09-14", "subject": "Argumentação", "title": "Avaliação", "type": "prova", "points": "10,0", "todo": "Preparar texto dissertativo-argumentativo: introdução, desenvolvimento 1 e 2 e conclusão. Usar caneta azul ou preta e seguir a estrutura trabalhada em aula."}, {"date": "2026-09-14", "subject": "Geografia", "title": "Avaliação escrita", "type": "prova", "points": "10,0", "todo": "Estudar o conteúdo indicado na ficha de Geografia."}, {"date": "2026-09-15", "subject": "Língua Portuguesa", "title": "Avaliação", "type": "prova", "points": "10,0", "todo": "Estudar leitura e interpretação, gêneros textuais, J/G/Z/S/SS/CS, conjunções coordenativas e Parnasianismo."}, {"date": "2026-09-16", "subject": "Língua Inglesa", "title": "Avaliação escrita", "type": "prova", "points": "10,0", "todo": "Estudar vocabulário de tecnologia e zona de conforto; comparações com adjetivos; compreensão e interpretação de texto."}, {"date": "2026-09-28", "subject": "Argumentação / Geografia / CN/CH", "title": "Recuperação", "type": "recuperacao", "points": "10,0", "todo": "Preparar-se para a recuperação conforme a disciplina correspondente e o conteúdo da Sistemática."}, {"date": "2026-09-29", "subject": "Projeto de Vida / Língua Portuguesa / Matemática", "title": "Recuperação", "type": "recuperacao", "points": "10,0", "todo": "Revisar o conteúdo da disciplina correspondente e realizar a recuperação se convocado."}, {"date": "2026-09-30", "subject": "Investigação Matemática", "title": "Recuperação", "type": "recuperacao", "points": "10,0", "todo": "Revisar o conteúdo previsto na ficha da disciplina."}, {"date": "2026-09-30", "subject": "Língua Inglesa", "title": "Recuperação", "type": "recuperacao", "points": "10,0", "todo": "Revisar o mesmo conteúdo da avaliação escrita de Inglês: vocabulário, comparações com adjetivos e compreensão/interpretação de texto."}, {"date": "2026-09-30", "subject": "Química", "title": "Recuperação", "type": "recuperacao", "points": "10,0", "todo": "Revisar Cinética Química, Velocidade de Reações, Equilíbrios Químicos e Princípio de Le Chatelier — Módulos 1, 2 e 3."}, {"date": "2026-10-01", "subject": "Biologia / História", "title": "Recuperação", "type": "recuperacao", "points": "10,0", "todo": "Revisar os conteúdos das avaliações correspondentes."}, {"date": "2026-10-02", "subject": "Ensino Religioso / Filosofia / Física", "title": "Recuperação", "type": "recuperacao", "points": "10,0", "todo": "Revisar os conteúdos das avaliações correspondentes."}];
+let current = new Date(2026,7,1);
+let filter = "todos";
+let query = "";
+
+const monthNames=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const typeNames={prova:"🔴 PROVA",trabalho:"🔵 TRABALHO",atividade:"🟢 ATIVIDADE",recuperacao:"🟠 RECUPERAÇÃO",info:"🟣 INFORMAÇÃO"};
+
+function localDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fmt(s){ return localDate(s).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric"}); }
+function visible(e){
+  if(filter!=="todos" && e.type!==filter) return false;
+  if(query){
+    const blob=Object.values(e).join(" ").toLowerCase();
+    if(!blob.includes(query.toLowerCase())) return false;
+  }
+  return true;
+}
+function render(){
+  document.getElementById("month").textContent=monthNames[current.getMonth()]+" "+current.getFullYear();
+  const grid=document.getElementById("grid"); grid.innerHTML="";
+  const y=current.getFullYear(), m=current.getMonth();
+  const first=new Date(y,m,1), last=new Date(y,m+1,0);
+  const start=(first.getDay()+6)%7, total=Math.ceil((start+last.getDate())/7)*7;
+  const today=new Date(); today.setHours(0,0,0,0);
+  for(let i=0;i<total;i++){
+    const day=i-start+1, cell=document.createElement("div"); cell.className="day";
+    const d=new Date(y,m,day);
+    if(day<1 || day>last.getDate()) cell.classList.add("muted");
+    if(d.getTime()===today.getTime()) cell.classList.add("todaycell");
+    if(day>=1 && day<=last.getDate()){
+      const ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+      cell.onclick=()=>openDay(ds);
+      cell.innerHTML='<div class="num">'+day+'</div>';
+      const list=eventos.filter(e=>e.date===ds && visible(e));
+      list.slice(0,3).forEach(e=>{
+        const div=document.createElement("div"); div.className="event "+e.type;
+        div.textContent=e.subject+" — "+e.title; cell.appendChild(div);
+      });
+      if(list.length>3){ const more=document.createElement("div"); more.className="more"; more.textContent="+"+(list.length-3)+" eventos"; cell.appendChild(more); }
+    } else cell.innerHTML='<div class="num">'+(day<1?new Date(y,m,day).getDate():day)+'</div>';
+    grid.appendChild(cell);
+  }
+}
+function openDay(ds){
+  const list=eventos.filter(e=>e.date===ds && visible(e));
+  const c=document.getElementById("content");
+  c.innerHTML='<div class="date-title">📅 '+fmt(ds)+'</div>';
+  if(!list.length){ c.innerHTML+='<div class="empty">Não há eventos cadastrados para este dia.</div>'; }
+  list.forEach(e=>{
+    const item=document.createElement("div"); item.className="item";
+    item.innerHTML='<h3>'+typeNames[e.type]+' · '+e.subject+'</h3>'+
+      '<div class="meta"><span class="pill">'+e.title+'</span>'+
+      (e.points?'<span class="pill">Nota: '+e.points+'</span>':'')+
+      '<span class="pill">'+fmt(e.date)+'</span></div>'+
+      '<div class="todo"><b>O que fazer:</b><br>'+e.todo+'</div>';
+    c.appendChild(item);
+  });
+  document.getElementById("modal").classList.add("show");
+}
+document.getElementById("prev").onclick=()=>{current.setMonth(current.getMonth()-1);render()};
+document.getElementById("next").onclick=()=>{current.setMonth(current.getMonth()+1);render()};
+document.getElementById("today").onclick=()=>{current=new Date();current.setDate(1);render()};
+document.getElementById("close").onclick=()=>document.getElementById("modal").classList.remove("show");
+document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("show")};
+document.getElementById("search").oninput=e=>{query=e.target.value;render()};
+document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); filter=b.dataset.filter; render();
+});
+render();
+</script>
+</body>
+</html>
